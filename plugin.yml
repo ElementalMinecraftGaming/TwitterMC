@@ -1,0 +1,20 @@
+name: TwitterMC
+main: ElementalMinecraftGaming\TwitterMC\Main
+version: 1.0.0
+api: [4.2.6]
+load: POSTWORLD
+author: ElementalMinecraftGaming
+description: Post to twitter from minecraft!
+
+commands:
+ twitter:
+  description: Current twitter features!
+  permission: twitter.use
+
+permissions:
+  twitter.use:
+    default: true
+    description: Let's you open the UI!
+  twitter.post:
+      default: true
+      description: Let's you post to twitter!
