@@ -1,11 +1,13 @@
 # TwitterMC
-Allows you to use Twitter from minecraft!
+Allows you to use Twitter from minecraft.
 
 Current features: Posting
 
 Current Commands: /twitter
 
 Current Perms: twitter.use | twitter.post
+
+Hope that you like it!
 
 [![](https://poggit.pmmp.io/shield.state/TwitterMC)](https://poggit.pmmp.io/p/TwitterMC)
 
