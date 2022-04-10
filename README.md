@@ -1,5 +1,5 @@
 # TwitterMC
-Allows you to use Twitter from minecraft.
+Allows you to use Twitter from minecraft!
 
 Current features: Posting
 
