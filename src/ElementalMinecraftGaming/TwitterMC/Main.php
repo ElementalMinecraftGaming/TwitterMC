@@ -8,8 +8,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
-use jojoe77777\FormAPI\CustomForm;
-use jojoe77777\FormAPI\SimpleForm;
+use Vecnavium\FormsUI\CustomForm;
+use Vecnavium\FormsUI\SimpleForm;
 use pocketmine\event\Listener;
 use ElementalMinecraftGaming\TwitterMC\TwitterAPIExchange;
 
