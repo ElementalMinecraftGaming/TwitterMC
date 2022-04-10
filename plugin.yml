@@ -4,7 +4,7 @@ version: 1.0.0
 api: [4.2.6]
 load: POSTWORLD
 author: ElementalMinecraftGaming
-description: Post to twitter from minecraft!
+description: Post to twitter from minecraft! : )
 
 commands:
  twitter:
