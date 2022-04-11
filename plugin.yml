@@ -1,7 +1,7 @@
 name: TwitterMC
 main: ElementalMinecraftGaming\TwitterMC\Main
 version: 1.0.0
-api: [4.2.6]
+api: [4.2.5]
 load: POSTWORLD
 author: ElementalMinecraftGaming
 description: Post to twitter from minecraft!
