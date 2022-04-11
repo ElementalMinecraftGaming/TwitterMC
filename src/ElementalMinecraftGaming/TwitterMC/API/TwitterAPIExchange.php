@@ -78,7 +78,6 @@ class TwitterAPIExchange implements Listener
      * @throws \RuntimeException When cURL isn't loaded
      * @throws \InvalidArgumentException When incomplete settings parameters are provided
      *
-     * @param array $settings
      */
     
     public function __construct($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret)
