@@ -8,8 +8,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
-use ElementalMinecraftGaming\TwitterMC\libs\Vecnavium\FormsUI\CustomForm;
-use ElementalMinecraftGaming\TwitterMC\libs\Vecnavium\FormsUI\SimpleForm;
+use Vecnavium\FormsUI\CustomForm;
+use Vecnavium\FormsUI\SimpleForm;
 use pocketmine\event\Listener;
 use ElementalMinecraftGaming\TwitterMC\API\TwitterAPIExchange;
 
@@ -274,7 +274,6 @@ class Main extends PluginBase implements Listener {
         $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
         $consumer_key = $this->getConsumerKey($user->getName());
         $consumer_secret = $this->getConsumerSecretKey($user->getName());
-        echo "$oauth_access_token";
         $url = 'https://api.twitter.com/1.1/statuses/update.json';
         $requestMethod = 'POST';
         $apiData = array(
@@ -284,7 +283,6 @@ class Main extends PluginBase implements Listener {
         $twitter->buildOauth($url, $requestMethod);
         $twitter->setPostfields($apiData);
         $msg = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
-        echo "$msg";
     }
 
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {
