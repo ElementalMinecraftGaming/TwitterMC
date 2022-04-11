@@ -8,10 +8,10 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
-use Vecnavium\FormsUI\CustomForm;
-use Vecnavium\FormsUI\SimpleForm;
+use ElementalMinecraftGaming\TwitterMC\libs\Vecnavium\FormsUI\CustomForm;
+use ElementalMinecraftGaming\TwitterMC\libs\Vecnavium\FormsUI\SimpleForm;
 use pocketmine\event\Listener;
-use ElementalMinecraftGaming\TwitterMC\TwitterAPIExchange;
+use ElementalMinecraftGaming\TwitterMC\API\TwitterAPIExchange;
 
 class Main extends PluginBase implements Listener {
 
@@ -132,12 +132,12 @@ class Main extends PluginBase implements Listener {
                         case 0:
                             $form = new CustomForm(function (Player $player, $data) use ($user) {
                                         if (!$data == null) {
-                                            $this->setAuthKey($user, hash('md4',$data[0]));
+                                            $this->setAuthKey($user, $data[0]);
                                             $form = new CustomForm(function (Player $player, $data) use ($user) {
                                                         if (!$data == null) {
                                                             $this->setAuthSecretKey($user, $data[0]);
-                                                            $this->setConsumerKey($user, "H0hCowuOAUwXxTmgwuKuMZIhu");
-                                                            $this->setConsumerSecretKey($user, "Z0VudbwTTr7lw2IL52eZ0QirEglpJnpNRBtzY9ObRgR1yVWvUH");
+                                                            $this->setConsumerKey($user, "92WdV7F56aAfsiTwdWqQT3Mvx");
+                                                            $this->setConsumerSecretKey($user, "H6aj5TCptGBrLJJvMMqWTa0UDklXaWguQpMuQEGKkfQCchH0nQ");
                                                             $this->twitterPanel($player);
                                                             return true;
                                                         } else {
@@ -274,6 +274,7 @@ class Main extends PluginBase implements Listener {
         $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
         $consumer_key = $this->getConsumerKey($user->getName());
         $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        echo "$oauth_access_token";
         $url = 'https://api.twitter.com/1.1/statuses/update.json';
         $requestMethod = 'POST';
         $apiData = array(
@@ -282,8 +283,8 @@ class Main extends PluginBase implements Listener {
         $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
         $twitter->buildOauth($url, $requestMethod);
         $twitter->setPostfields($apiData);
-        $posting = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
-        echo $posting;
+        $msg = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+        echo "$msg";
     }
 
     public function onCommand(CommandSender $sender, Command $command, string $label, array $args): bool {

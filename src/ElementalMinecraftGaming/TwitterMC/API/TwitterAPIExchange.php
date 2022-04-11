@@ -13,8 +13,6 @@ namespace ElementalMinecraftGaming\TwitterMC\API;
  * @version  1.0.4
  * @link     http://github.com/j7mbo/twitter-api-php
  */
-use ElementalMinecraftGaming\TwitterMC\Main;
-use pocketmine\plugin\PluginBase;
 use pocketmine\event\Listener;
 
 class TwitterAPIExchange implements Listener
@@ -82,10 +80,6 @@ class TwitterAPIExchange implements Listener
      *
      * @param array $settings
      */
-    
-    public function onEnable(): void {
-        $this->getServer()->getPluginManager()->registerEvents($this, $this);
-    }
     
     public function __construct($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret)
     {
