@@ -8,8 +8,8 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\utils\TextFormat;
-use Vecnavium\FormsUI\CustomForm;
-use Vecnavium\FormsUI\SimpleForm;
+use ElementalMinecraftGaming\TwitterMC\libs\Vecnavium\FormsUI\CustomForm;
+use ElementalMinecraftGaming\TwitterMC\libs\Vecnavium\FormsUI\SimpleForm;
 use pocketmine\event\Listener;
 use ElementalMinecraftGaming\TwitterMC\API\TwitterAPIExchange;
 
@@ -229,7 +229,7 @@ class Main extends PluginBase implements Listener {
     }
 
     public function twitterPanel($user) {
-        $form = new SimpleForm(function (Player $player, $data) {
+        $form = new SimpleForm(function (Player $player, $data) use ($user) {
                     switch ($data) {
                         case 0:
                             if ($player->hasPermission("twitter.post")) {
@@ -240,23 +240,83 @@ class Main extends PluginBase implements Listener {
                                 return;
                             }
                         case 1:
+                            $this->twitterSearch($user);
                             return;
                         case 2:
+                            return;
+                        case 3:
                             return;
                     }
                 });
         $form->setTitle(TextFormat::BLUE . "Twitter");
         $form->setContent(TextFormat::BOLD . TextFormat::GOLD . "Choose your service.");
-        $form->addButton(TextFormat::RED . "Post");
+        $form->addButton(TextFormat:: DARK_GREEN . "Post");
+        $form->addButton(TextFormat:: DARK_GREEN . "Someone's timeline");
         $form->addButton(TextFormat::RED . "Exit");
         $form->sendToPlayer($user);
         return;
+    }
+    
+    public function twitterSearch($user) {
+        $form = new CustomForm(function (Player $player, $data) {
+                    if (!$data == null) {
+                        $this->twitterSearchResults($player,$data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Showing Results");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Search");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Search");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+    
+    public function twitterSearchResults($user, $query) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $query = strtolower($query);
+        $url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
+        $requestMethod = 'GET';
+        $getfield = "?screen_name=$query&count=1";
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->setGetfield($getfield);
+        $twitter->buildOauth($url, $requestMethod);
+        $response = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+        $tweets = json_decode($response, true);
+        $form = new CustomForm(function (Player $player, $data) {
+                    switch ($data) {
+                        case 0:
+                            return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Results");
+        foreach ($tweets as $tweet) {
+            $checkstring = is_string($tweet);
+            if (!$checkstring) {
+                if (array_key_exists("text", $tweet)){
+                $form->addLabel(TextFormat::DARK_AQUA . TextFormat::BOLD . $query);
+            $form->addLabel(TextFormat::DARK_GREEN . $tweet["text"]);
+                } else {
+                    $form->addLabel("Unsupported message");
+                } 
+            } else {
+                $form->addLabel("This is a private account");
+            }
+        }
+        $form->sendToPlayer($user);
+        return true;
     }
 
     public function twitterPostForm($user) {
         $form = new CustomForm(function (Player $player, $data) use ($user) {
                     if (!$data == null) {
                         $this->twitterPost($player,$data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Posted");
                         return true;
                     } else {
                         $player->sendMessage(TextFormat::RED . "Failed To Post");
