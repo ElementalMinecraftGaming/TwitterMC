@@ -243,8 +243,14 @@ class Main extends PluginBase implements Listener {
                             $this->twitterSearch($user);
                             return;
                         case 2:
+                            $this->blockForm($user);
                             return;
                         case 3:
+                            $this->unblockForm($user);
+                            return;
+                        case 4:
+                            return;
+                        case 5:
                             return;
                     }
                 });
@@ -252,6 +258,8 @@ class Main extends PluginBase implements Listener {
         $form->setContent(TextFormat::BOLD . TextFormat::GOLD . "Choose your service.");
         $form->addButton(TextFormat:: DARK_GREEN . "Post");
         $form->addButton(TextFormat:: DARK_GREEN . "Someone's timeline");
+        $form->addButton(TextFormat:: DARK_GREEN . "Block");
+        $form->addButton(TextFormat:: DARK_GREEN . "Unblock");
         $form->addButton(TextFormat::RED . "Exit");
         $form->sendToPlayer($user);
         return;
@@ -327,6 +335,72 @@ class Main extends PluginBase implements Listener {
         $form->addInput("");
         $form->sendToPlayer($user);
         return true;
+    }
+    
+    public function blockForm($user) {
+        $form = new CustomForm(function (Player $player, $data) use ($user) {
+                    if (!$data == null) {
+                        $this->twitterBlock($player,$data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Blocked");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Block");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Tag name");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+    
+    public function unblockForm($user) {
+        $form = new CustomForm(function (Player $player, $data) use ($user) {
+                    if (!$data == null) {
+                        $this->twitterUnblock($player,$data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Unblocked");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Block");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Tag name");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+    
+    public function twitterUnblock($user, $unblocked) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $url = 'https://api.twitter.com/1.1/blocks/destroy.json';
+        $requestMethod = 'POST';
+        $apiData = array(
+            'screen_name' => $unblocked,
+        );
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->buildOauth($url, $requestMethod);
+        $twitter->setPostfields($apiData);
+        $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+    }
+    
+    public function twitterBlock($user, $blocked) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $url = 'https://api.twitter.com/1.1/blocks/create.json';
+        $requestMethod = 'POST';
+        $apiData = array(
+            'screen_name' => $blocked,
+        );
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->buildOauth($url, $requestMethod);
+        $twitter->setPostfields($apiData);
+        $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
     }
 
     public function twitterPost($user, $message) {
