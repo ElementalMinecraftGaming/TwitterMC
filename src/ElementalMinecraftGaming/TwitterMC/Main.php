@@ -32,14 +32,14 @@ class Main extends PluginBase implements Listener {
         $checker = $start->fetchArray(SQLITE3_ASSOC);
         return empty($checker) == false;
     }
-    
+
     public function setAuthKey($user, $key) {
         $del = $this->db->prepare("INSERT OR REPLACE INTO Twitter (user, ak) VALUES (:user, :ak);");
         $del->bindValue(":user", $user);
         $del->bindValue(":ak", $key);
         $start = $del->execute();
     }
-    
+
     public function setAuthSecretKey($user, $key) {
         $del = $this->db->prepare("INSERT OR REPLACE INTO Twitter (user, ak, aks) VALUES (:user, :ak, :aks);");
         $del->bindValue(":user", $user);
@@ -47,7 +47,7 @@ class Main extends PluginBase implements Listener {
         $del->bindValue(":aks", $key);
         $start = $del->execute();
     }
-    
+
     public function setConsumerKey($user, $key) {
         $del = $this->db->prepare("INSERT OR REPLACE INTO Twitter (user, ak, aks, ck) VALUES (:user, :ak, :aks, :ck);");
         $del->bindValue(":user", $user);
@@ -56,12 +56,12 @@ class Main extends PluginBase implements Listener {
         $del->bindValue(":ck", $key);
         $start = $del->execute();
     }
-    
+
     public function deleteSetup($user) {
         $del = $this->db->prepare("DELETE FROM Twitter where user='$user';");
         $start = $del->execute();
     }
-    
+
     public function setConsumerSecretKey($user, $key) {
         $del = $this->db->prepare("INSERT OR REPLACE INTO Twitter (user, ak, aks, ck, cks) VALUES (:user, :ak, :aks, :ck, :cks);");
         $del->bindValue(":user", $user);
@@ -71,7 +71,7 @@ class Main extends PluginBase implements Listener {
         $del->bindValue(":cks", $key);
         $start = $del->execute();
     }
-    
+
     public function getAuthKey($user) {
         $search = $this->db->prepare("SELECT ak FROM Twitter WHERE user = :user;");
         $search->bindValue(":user", $user);
@@ -79,7 +79,7 @@ class Main extends PluginBase implements Listener {
         $ak = $start->fetchArray(SQLITE3_ASSOC);
         return $ak["ak"];
     }
-    
+
     public function getAuthSecretKey($user) {
         $search = $this->db->prepare("SELECT aks FROM Twitter WHERE user = :user;");
         $search->bindValue(":user", $user);
@@ -87,7 +87,7 @@ class Main extends PluginBase implements Listener {
         $aks = $start->fetchArray(SQLITE3_ASSOC);
         return $aks["aks"];
     }
-    
+
     public function getConsumerKey($user) {
         $search = $this->db->prepare("SELECT ck FROM Twitter WHERE user = :user;");
         $search->bindValue(":user", $user);
@@ -95,7 +95,7 @@ class Main extends PluginBase implements Listener {
         $ck = $start->fetchArray(SQLITE3_ASSOC);
         return $ck["ck"];
     }
-    
+
     public function getConsumerSecretKey($user) {
         $search = $this->db->prepare("SELECT cks FROM Twitter WHERE user = :user;");
         $search->bindValue(":user", $user);
@@ -103,19 +103,19 @@ class Main extends PluginBase implements Listener {
         $cks = $start->fetchArray(SQLITE3_ASSOC);
         return $cks["cks"];
     }
-    
+
     public function trustWarning($player) {
         $form = new SimpleForm(function (Player $player, $data) {
                     switch ($data) {
                         case 0:
-                        $this->twitterLogin($player, $player->getName());
-                        return;
-                            
+                            $this->twitterLogin($player, $player->getName());
+                            return;
+
                         case 1:
-                        return;
-                            
+                            return;
+
                         case 2:
-                        return;
+                            return;
                     }
                 });
         $form->setTitle(TextFormat::RED . "WARNING!");
@@ -233,8 +233,8 @@ class Main extends PluginBase implements Listener {
                     switch ($data) {
                         case 0:
                             if ($player->hasPermission("twitter.post")) {
-                            $this->twitterPostForm($player);
-                            return true;
+                                $this->twitterPostForm($player);
+                                return true;
                             } else {
                                 $player->sendMessage(TextFormat::RED . "You don't have posting permissions!");
                                 return;
@@ -249,8 +249,23 @@ class Main extends PluginBase implements Listener {
                             $this->unblockForm($user);
                             return;
                         case 4:
+                            $this->muteForm($user);
                             return;
                         case 5:
+                            $this->unmuteForm($user);
+                            return;
+                        case 6:
+                            $this->followForm($user);
+                            return;
+                        case 7:
+                            $this->unfollowForm($user);
+                            return;
+                        case 8:
+                            $this->setDescriptionForm($user);
+                            return;
+                        case 9:
+                            return;
+                        case 10:
                             return;
                     }
                 });
@@ -260,15 +275,20 @@ class Main extends PluginBase implements Listener {
         $form->addButton(TextFormat:: DARK_GREEN . "Someone's timeline");
         $form->addButton(TextFormat:: DARK_GREEN . "Block");
         $form->addButton(TextFormat:: DARK_GREEN . "Unblock");
+        $form->addButton(TextFormat:: DARK_GREEN . "Mute");
+        $form->addButton(TextFormat:: DARK_GREEN . "Unmute");
+        $form->addButton(TextFormat:: DARK_GREEN . "Follow");
+        $form->addButton(TextFormat:: DARK_GREEN . "Unfollow");
+        $form->addButton(TextFormat:: DARK_GREEN . "Set description");
         $form->addButton(TextFormat::RED . "Exit");
         $form->sendToPlayer($user);
         return;
     }
-    
+
     public function twitterSearch($user) {
         $form = new CustomForm(function (Player $player, $data) {
                     if (!$data == null) {
-                        $this->twitterSearchResults($player,$data[0]);
+                        $this->twitterSearchResults($player, $data[0]);
                         $player->sendMessage(TextFormat::GREEN . "Showing Results");
                         return true;
                     } else {
@@ -281,7 +301,7 @@ class Main extends PluginBase implements Listener {
         $form->sendToPlayer($user);
         return true;
     }
-    
+
     public function twitterSearchResults($user, $query) {
         $oauth_access_token = $this->getAuthKey($user->getName());
         $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
@@ -306,12 +326,12 @@ class Main extends PluginBase implements Listener {
         foreach ($tweets as $tweet) {
             $checkstring = is_string($tweet);
             if (!$checkstring) {
-                if (array_key_exists("text", $tweet)){
-                $form->addLabel(TextFormat::DARK_AQUA . TextFormat::BOLD . $query);
-            $form->addLabel(TextFormat::DARK_GREEN . $tweet["text"]);
+                if (array_key_exists("text", $tweet)) {
+                    $form->addLabel(TextFormat::DARK_AQUA . TextFormat::BOLD . $query);
+                    $form->addLabel(TextFormat::DARK_GREEN . $tweet["text"]);
                 } else {
                     $form->addLabel("Unsupported message");
-                } 
+                }
             } else {
                 $form->addLabel("This is a private account");
             }
@@ -323,7 +343,7 @@ class Main extends PluginBase implements Listener {
     public function twitterPostForm($user) {
         $form = new CustomForm(function (Player $player, $data) use ($user) {
                     if (!$data == null) {
-                        $this->twitterPost($player,$data[0]);
+                        $this->twitterPost($player, $data[0]);
                         $player->sendMessage(TextFormat::GREEN . "Posted");
                         return true;
                     } else {
@@ -336,11 +356,176 @@ class Main extends PluginBase implements Listener {
         $form->sendToPlayer($user);
         return true;
     }
-    
+
+    public function setDescriptionForm($user) {
+        $form = new CustomForm(function (Player $player, $data) use ($user) {
+                    if (!$data == null) {
+                        $this->twittersetDescription($player, $data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Description set");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Set Description");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Tag name");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+
+    public function twitterSetDescription($user, $description) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $url = 'https://api.twitter.com/1.1/account/update_profile.json';
+        $requestMethod = 'POST';
+        $apiData = array(
+            'description' => $description,
+        );
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->buildOauth($url, $requestMethod);
+        $twitter->setPostfields($apiData);
+        $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+    }
+
+    public function followForm($user) {
+        $form = new CustomForm(function (Player $player, $data) use ($user) {
+                    if (!$data == null) {
+                        $this->twitterFollow($player, $data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Followed");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Follow");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Tag name");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+
+    public function unfollowForm($user) {
+        $form = new CustomForm(function (Player $player, $data) use ($user) {
+                    if (!$data == null) {
+                        $this->twitterUnfollow($player, $data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Unfollowed");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Unfollow");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Tag name");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+
+    public function twitterUnfollow($user, $unfollowed) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $url = 'https://api.twitter.com/1.1/friendships/destroy.json';
+        $requestMethod = 'POST';
+        $apiData = array(
+            'screen_name' => $unfollowed,
+        );
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->buildOauth($url, $requestMethod);
+        $twitter->setPostfields($apiData);
+        $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+    }
+
+    public function twitterFollow($user, $follow) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $url = 'https://api.twitter.com/1.1/friendships/create.json';
+        $requestMethod = 'POST';
+        $apiData = array(
+            'screen_name' => $follow,
+        );
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->buildOauth($url, $requestMethod);
+        $twitter->setPostfields($apiData);
+        $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+    }
+
+    public function muteForm($user) {
+        $form = new CustomForm(function (Player $player, $data) use ($user) {
+                    if (!$data == null) {
+                        $this->twitterMute($player, $data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Muted");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Mute");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Tag name");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+
+    public function unmuteForm($user) {
+        $form = new CustomForm(function (Player $player, $data) use ($user) {
+                    if (!$data == null) {
+                        $this->twitterUnmute($player, $data[0]);
+                        $player->sendMessage(TextFormat::GREEN . "Unmuted");
+                        return true;
+                    } else {
+                        $player->sendMessage(TextFormat::RED . "Failed To Unmute");
+                        return;
+                    }
+                });
+        $form->setTitle(TextFormat::BLUE . "Tag name");
+        $form->addInput("");
+        $form->sendToPlayer($user);
+        return true;
+    }
+
+    public function twitterUnmute($user, $unmuted) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $url = 'https://api.twitter.com/1.1/mutes/users/destroy.json';
+        $requestMethod = 'POST';
+        $apiData = array(
+            'screen_name' => $unmuted,
+        );
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->buildOauth($url, $requestMethod);
+        $twitter->setPostfields($apiData);
+        $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+    }
+
+    public function twitterMute($user, $muted) {
+        $oauth_access_token = $this->getAuthKey($user->getName());
+        $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
+        $consumer_key = $this->getConsumerKey($user->getName());
+        $consumer_secret = $this->getConsumerSecretKey($user->getName());
+        $url = 'https://api.twitter.com/1.1/mutes/users/create.json';
+        $requestMethod = 'POST';
+        $apiData = array(
+            'screen_name' => $muted,
+        );
+        $twitter = new TwitterAPIExchange($oauth_access_token, $oauth_access_token_secret, $consumer_key, $consumer_secret);
+        $twitter->buildOauth($url, $requestMethod);
+        $twitter->setPostfields($apiData);
+        $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
+    }
+
     public function blockForm($user) {
         $form = new CustomForm(function (Player $player, $data) use ($user) {
                     if (!$data == null) {
-                        $this->twitterBlock($player,$data[0]);
+                        $this->twitterBlock($player, $data[0]);
                         $player->sendMessage(TextFormat::GREEN . "Blocked");
                         return true;
                     } else {
@@ -353,11 +538,11 @@ class Main extends PluginBase implements Listener {
         $form->sendToPlayer($user);
         return true;
     }
-    
+
     public function unblockForm($user) {
         $form = new CustomForm(function (Player $player, $data) use ($user) {
                     if (!$data == null) {
-                        $this->twitterUnblock($player,$data[0]);
+                        $this->twitterUnblock($player, $data[0]);
                         $player->sendMessage(TextFormat::GREEN . "Unblocked");
                         return true;
                     } else {
@@ -370,7 +555,7 @@ class Main extends PluginBase implements Listener {
         $form->sendToPlayer($user);
         return true;
     }
-    
+
     public function twitterUnblock($user, $unblocked) {
         $oauth_access_token = $this->getAuthKey($user->getName());
         $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
@@ -386,7 +571,7 @@ class Main extends PluginBase implements Listener {
         $twitter->setPostfields($apiData);
         $action = $twitter->performRequest(true, array(CURLOPT_SSL_VERIFYHOST => 0, CURLOPT_SSL_VERIFYPEER => 0));
     }
-    
+
     public function twitterBlock($user, $blocked) {
         $oauth_access_token = $this->getAuthKey($user->getName());
         $oauth_access_token_secret = $this->getAuthSecretKey($user->getName());
