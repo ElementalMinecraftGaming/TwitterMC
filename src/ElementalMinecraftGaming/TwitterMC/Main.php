@@ -546,7 +546,7 @@ class Main extends PluginBase implements Listener {
                         $player->sendMessage(TextFormat::GREEN . "Unblocked");
                         return true;
                     } else {
-                        $player->sendMessage(TextFormat::RED . "Failed To Block");
+                        $player->sendMessage(TextFormat::RED . "Failed To Unblock");
                         return;
                     }
                 });
